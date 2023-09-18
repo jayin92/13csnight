@@ -1,4 +1,4 @@
-PYTHON = python3
+PYTHON = python
 
 all: 
 	$(PYTHON) app.py 

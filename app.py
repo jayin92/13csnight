@@ -7,10 +7,13 @@ from bank import qa_list
 app = Flask(__name__)
 df = pd.DataFrame([], columns=['username', 'password', 'score'])
 login_list = []
+
+
 # home page
 @app.route('/')
 def home():
     return render_template('index.html')
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -34,7 +37,10 @@ def login():
             login_list.append(username)
             global df
             if username not in df.values:
-                info_df = pd.DataFrame([[username, password, 0]], columns=['username', 'password', 'score'])      
+                info_df = pd.DataFrame(
+                    [[username, password, 0]],
+                    columns=['username', 'password', 'score']
+                )
                 df = pd.concat([df, info_df], ignore_index=True)
             else:
                 df.loc[df['username'] == username, 'score'] = 0
@@ -44,6 +50,7 @@ def login():
         else:
             error_type = 'password_error'
             return render_template('error_login.html', error=error_type)
+
 
 @app.route('/question/<username>/<number>', methods=['GET'])
 def question(username, number):
@@ -57,6 +64,7 @@ def question(username, number):
         }
         return render_template('question.html', info=info)
 
+
 @app.route('/answer/<username>/<number>', methods=['POST'])
 def answer(username, number):
     global df
@@ -65,13 +73,14 @@ def answer(username, number):
         df.loc[df['username'] == username, 'score'] += 1
         df.to_csv('data.csv', index=False)
     else:
-        correct = False    
+        correct = False
     info = {
         'username': username,
         'number': int(number),
         'correct': correct
     }
     return render_template('answer.html', info=info)
+
 
 @app.route('/result/<username>', methods=['GET'])
 def result(username):
@@ -82,14 +91,15 @@ def result(username):
     info = {
         'score': score,
         'data': df,
-        'length': len(df) 
+        'length': len(df)
     }
     return render_template('result.html', info=info)
+
 
 @app.route('/logout', methods=['GET'])
 def logout():
     return redirect(url_for('home'))
-    
+
 
 if __name__ == '__main__':
-    app.run('0.0.0.0', debug=False)
+    app.run('0.0.0.0', port=8080, debug=False)
